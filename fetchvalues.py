@@ -7,6 +7,31 @@ from urllib.request import urlopen
 METADATA_URL = 'http://www.lcswma.org/dashboard/js/functions.js'
 DATA_URL = 'http://www.lcswma.org/dashboard/getfile.cfm'
 
+FRIENDLY_KEYS = {
+    'gashomes' : 'gas_to_energy.conestoga.homes',
+    'gasmethane' : 'gas_to_energy.conestoga.methane_destroyed',
+    'gasoutput' : 'gas_to_energy.conestoga.kw',
+    'gassteam' : 'gas_to_energy.conestoga.steam_generated',
+    'gasytd' : 'gas_to_energy.conestoga.mwh_ytd',
+    'hbgco2' : 'waste_to_energy.harrisburg.co2_offset',
+    'hbghomes' : 'waste_to_energy.harrisburg.homes',
+    'hbgoutput' : 'waste_to_energy.harrisburg.kw',
+    'hbgwasteday' : 'waste_to_energy.harrisburg.waste_day',
+    'hbgwastehour' : 'waste_to_energy.harrisburg.tons_per_hour',
+    'hbgwasteytd' : 'waste_to_energy.harrisburg.waste_ytd',
+    'hbgytd' : 'waste_to_energy.harrisburg.mwh_ytd',
+    'solarhomes' : 'solar.lancaster.homes',
+    'solaroutput' : 'solar.lancaster.kw',
+    'solarytd' : 'solar.lancaster.kwh_ytd',
+    'windgallons' : 'wind.conestoga.ice_cream_gallons',
+    'windhomes' : 'wind.conestoga.homes',
+    'windoutput' : 'wind.conestoga.kw',
+    'wtehomes' : 'waste_to_energy.bainbridge.homes',
+    'wteoutput' : 'waste_to_energy.bainbridge.output',
+    'wtewaste' : 'waste_to_energy.bainbridge.output',
+    'wteytd' : 'waste_to_energy.bainbridge.mwh_ytd',
+}
+
 def fetch_data(metadata):
     data = urlopen(DATA_URL)
     data = str(data.read())
@@ -17,7 +42,7 @@ def fetch_data(metadata):
     print("at %s on %s" % (time, date))
 
     for idx in metadata.keys():
-        print("%s :: %s" % (metadata[idx], values[idx]))
+        print("%s :: %s" % (FRIENDLY_KEYS[metadata[idx]], values[idx].replace(',', '')))
 
 def fetch_metadata():
     metadata = {}
