@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import re
+from datetime import datetime
 from urllib.error import URLError, HTTPError
 from urllib.request import urlopen
 
@@ -33,16 +34,17 @@ FRIENDLY_KEYS = {
 }
 
 def fetch_data(metadata):
-    data = urlopen(DATA_URL)
-    data = str(data.read())
+    response = urlopen(DATA_URL)
+    data = response.read().decode("ASCII")
 
     values = data.split("<br>")
-    date = values[0]
-    time = values[1]
-    print("at %s on %s" % (time, date))
+    date = values[0].strip()
+    time = values[1].strip()
+    timestamp = datetime.strptime("%s %s" % (date, time), "%m/%d/%Y %I:%M:%S %p")
+    print(timestamp)
 
     for idx in metadata.keys():
-        print("%s :: %s" % (FRIENDLY_KEYS[metadata[idx]], values[idx].replace(',', '')))
+        print("%s :: %s" % (FRIENDLY_KEYS[metadata[idx]], values[idx].replace(',', '').strip()))
 
 def fetch_metadata():
     metadata = {}
