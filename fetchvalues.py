@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 
+import csv
 import re
+import time
 from datetime import datetime
 from urllib.error import URLError, HTTPError
 from urllib.request import urlopen
@@ -35,16 +37,18 @@ FRIENDLY_KEYS = {
 
 def fetch_data(metadata):
     response = urlopen(DATA_URL)
-    data = response.read().decode("ASCII")
+    raw_data = response.read().decode("ASCII")
 
-    values = data.split("<br>")
+    values = raw_data.split("<br>")
     date = values[0].strip()
     time = values[1].strip()
     timestamp = datetime.strptime("%s %s" % (date, time), "%m/%d/%Y %I:%M:%S %p")
-    print(timestamp)
 
+    data = {}
     for idx in metadata.keys():
-        print("%s :: %s" % (FRIENDLY_KEYS[metadata[idx]], values[idx].replace(',', '').strip()))
+        data[FRIENDLY_KEYS[metadata[idx]]] = values[idx].replace(',', '').strip()
+
+    return (timestamp, data)
 
 def fetch_metadata():
     metadata = {}
@@ -61,6 +65,29 @@ def fetch_metadata():
             metadata[idx] = key
     return metadata
 
+class CSVOutput(object):
+    def __init__(self, file_name=None, fieldnames=None):
+        self.csv_file = open(file_name, "w")
+        self.writer = csv.DictWriter(self.csv_file, fieldnames=fieldnames)
+        self.writer.writeheader()
+
+    def save(self, data):
+        self.writer.writerow(data)
+        self.csv_file.flush()
+
 if __name__ == '__main__':
+    fieldnames = [v for v in FRIENDLY_KEYS.values()]
+    fieldnames.sort()
+    fieldnames.insert(0, 'timestamp')
+    csv_output = CSVOutput("data.csv", fieldnames)
+
     metadata = fetch_metadata()
-    fetch_data(metadata)
+
+    while(True):
+        timestamp, data = fetch_data(metadata)
+        data['timestamp'] = timestamp
+        csv_output.save(data)
+        print(timestamp)
+
+        # site data is only updated every 2 minutes
+        time.sleep(120)
