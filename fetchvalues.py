@@ -67,7 +67,7 @@ def fetch_metadata():
 
 class CSVOutput(object):
     def __init__(self, file_name=None, fieldnames=None):
-        self.csv_file = open(file_name, "w")
+        self.csv_file = open(file_name, "a")
         self.writer = csv.DictWriter(self.csv_file, fieldnames=fieldnames)
         self.writer.writeheader()
 
